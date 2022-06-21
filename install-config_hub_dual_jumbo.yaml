@@ -1,0 +1,217 @@
+apiVersion: v1
+baseDomain: t5g.lab.eng.bos.redhat.com 
+networking:
+  networkType: OVNKubernetes
+  machineNetwork:
+  - cidr: "10.19.32.192/26"
+  - cidr: "2620:52:0:1343::/64"
+  serviceNetwork:
+  - 172.30.0.0/16
+  - fd02::/112
+  clusterNetwork:
+  - cidr: 10.128.0.0/14
+    hostPrefix: 23
+  - cidr: fd01::/60
+    hostPrefix: 64
+metadata:
+  name: clus3a
+compute:
+- name: worker
+  replicas: 0
+controlPlane:
+  name: master
+  replicas: 3
+  platform:
+    baremetal: {}
+platform:
+  baremetal:
+    provisioningNetworkInterface: ens1f1
+    provisioningNetworkCIDR: 10.19.32.128/27 
+    ProvisioningDHCPRange: 10.19.32.135,10.19.32.150
+    #provisioningDHCPExternal: true
+    provisioningBridge: "provisioning"
+    externalBridge: "baremetal"
+    bootstrapProvisioningIP: 10.19.32.129 
+    bootstrapOSImage: http://10.19.32.208/rhcos-4.10.3-x86_64-qemu.x86_64.qcow2.gz?sha256=3a9268526bfc2aa66d7aeb11c1d0a4fd6de640dc475dd7ad20ceb5c953ea7c8b
+    clusterOSImage: http://10.19.32.208/rhcos-4.10.3-x86_64-openstack.x86_64.qcow2.gz?sha256=f581896eee37216021bfce9ddd5e1fd8289c366ca0d1db25221c77688de85fd7
+    #apiVIP: 2620:52:0:1343::6 
+    #ingressVIP: 2620:52:0:1343::8
+    apiVIP: 10.19.32.218
+    ingressVIP: 10.19.32.219
+    hosts:
+      - name: openshift-master-0
+        role: master
+        bmc:
+          address:  ipmi://10.19.28.50
+          username: root
+          password: 100Mgmt-
+        bootMACAddress: e4:43:4b:bd:90:2b 
+        hardwareProfile: default
+        #        bootMode: UEFI
+        networkConfig:
+          interfaces:
+            - name: ens1f0
+              type: ethernet
+              state: up
+              ipv4:
+                address:
+                - ip: 10.19.32.196
+                  prefix-length: 26
+                enabled: true
+                dhcp: false
+              ipv6:
+                enabled: true
+                dhcp: false
+                address:
+                - ip: "2620:52:0:1343::11"
+                  prefix-length: 64
+              mtu: 9000
+              mac-address: e4:43:4b:bd:90:2a
+          dns-resolver:
+            config:
+              server:
+              - "10.19.42.41"
+              - "10.19.32.208"
+              - "2620:52:0:1343::9"
+          routes:
+            config:
+              - destination: '0.0.0.0/0'
+                next-hop-address: '10.19.32.254'
+                next-hop-interface: ens1f0
+              - destination: '::/0'
+                next-hop-interface: ens1f0
+                next-hop-address: '2620:52:0:1343::fe'
+      - name: openshift-master-1
+        role: master
+        bmc:
+          address:  ipmi://10.19.28.51
+          username: root
+          password: 100Mgmt-
+        bootMACAddress: e4:43:4b:bd:91:53 
+        hardwareProfile: default
+        #        bootMode: UEFI
+        networkConfig:
+          interfaces:
+            - name: ens1f0
+              type: ethernet
+              state: up
+              ipv4:
+                address:
+                - ip: 10.19.32.197
+                  prefix-length: 26
+                enabled: true
+                dhcp: false
+              ipv6:
+                enabled: true
+                dhcp: false
+                address:
+                - ip: "2620:52:0:1343::12"
+                  prefix-length: 64
+              mtu: 9000
+              mac-address: e4:43:4b:bd:91:52
+          dns-resolver:
+            config:
+              server:
+              - "10.19.42.41"
+              - "10.19.32.208"
+              - "2620:52:0:1343::9"
+          routes:
+            config:
+              - destination: '0.0.0.0/0'
+                next-hop-address: '10.19.32.254'
+                next-hop-interface: ens1f0
+              - destination: '::/0'
+                next-hop-interface: ens1f0
+                next-hop-address: '2620:52:0:1343::fe'
+      - name: openshift-master-2
+        role: master
+        bmc:
+          address:  ipmi://10.19.28.52
+          username: root
+          password: 100Mgmt-
+        bootMACAddress: e4:43:4b:bd:91:8d 
+        hardwareProfile: default
+        #        bootMode: UEFI
+        networkConfig:
+          interfaces:
+            - name: ens1f0
+              type: ethernet
+              state: up
+              ipv4:
+                address:
+                - ip: 10.19.32.198
+                  prefix-length: 26
+                enabled: true
+                dhcp: false
+              ipv6:
+                enabled: true
+                dhcp: false
+                address:
+                - ip: "2620:52:0:1343::13"
+                  prefix-length: 64
+              mtu: 9000
+              mac-address: e4:43:4b:bd:91:8c
+          dns-resolver:
+            config:
+              server:
+              - "10.19.42.41"
+              - "10.19.32.208"
+              - "2620:52:0:1343::9"
+          routes:
+            config:
+              - destination: '0.0.0.0/0'
+                next-hop-address: '10.19.32.254'
+                next-hop-interface: ens1f0
+              - destination: '::/0'
+                next-hop-interface: ens1f0
+                next-hop-address: '2620:52:0:1343::fe'
+imageContentSources:
+- mirrors:
+  - registry.clus3a.t5g.lab.eng.bos.redhat.com:5000/ocp4
+  source: quay.io/openshift-release-dev/ocp-release
+- mirrors:
+  - registry.clus3a.t5g.lab.eng.bos.redhat.com:5000/ocp4
+  source: quay.io/openshift-release-dev/ocp-v4.0-art-dev
+pullSecret: |
+  {"auths":{"registry.clus3a.t5g.lab.eng.bos.redhat.com:5000":{"auth":"a25pOmtuaQ==","email":"ccardeno@redhat.com"}}}
+#pullSecret: |
+#  {"auths":{"registry.clus3a.t5g.lab.eng.bos.redhat.com:5000":{"auth":"a25pOmtuaQ==","email":"ccardeno@redhat.com"},"cloud.openshift.com":{"auth":"b3BlbnNoaWZ0LXJlbGVhc2UtZGV2K29jbV9hY2Nlc3NfZTI5YjQ3NTQyMzJhNDZkY2JkYzdiMDY2NjY1Njk0ZDA6NUpCVEg0VjVMUzhGMUs5UVpBQUxMNzlKVlNKNExENUs5MzdBRVhCNlk2SVZVVDdDR1RESEY0VUY0MjY2R09QNQ==","email":"ccardeno@redhat.com"},"quay.io":{"auth":"b3BlbnNoaWZ0LXJlbGVhc2UtZGV2K29jbV9hY2Nlc3NfZTI5YjQ3NTQyMzJhNDZkY2JkYzdiMDY2NjY1Njk0ZDA6NUpCVEg0VjVMUzhGMUs5UVpBQUxMNzlKVlNKNExENUs5MzdBRVhCNlk2SVZVVDdDR1RESEY0VUY0MjY2R09QNQ==","email":"ccardeno@redhat.com"},"registry.connect.redhat.com":{"auth":"fHVoYy1wb29sLTI1ZmExMzkyLTkwZWYtNDA2Ny04ZDY2LTI4N2JiNzk5N2ZhZDpleUpoYkdjaU9pSlNVelV4TWlKOS5leUp6ZFdJaU9pSTVNamRqWVRjMll6TXlaREEwTkdGaU9EQmtNbVV6TVRrMlpqa3lZV0k0WVNKOS5kWV9ya3psTGEtTm16RHlJcWVaRm9zSXVBYlVVMGJiWVNxU3IxNkkzSFZjc05yX3c3V3dOeGlfRjN1Tmd1ZmUwZDRQNktDQXhNQkh3bUQ1MHp1cWxnR0FFbUxVMmhXMWRlQmJNVVBKWHVfdkZEVXVTdzlCUFAyQmk2THlQVjhmem9IQlVKV2dnU21jd0RiSklBUXJkRExpOF96a2NfT2lKdzg1ZXlpZGkzbU1LNkdyVmNmQTBBQ211TDlvb1BCemNaYXl5R3VUTzZheG43Nkk3M0lMbnFUTTBfdmxwSFZ2dHBfeVJtc2xmZjZnVVJxZXRDdGVWdC1tVjdmM2pvR2dPalBxN2VHaE4za2pOenExUF94TFJCaHBrNnBMcGl4UXhmZHBOWTJxWDk2SFhTTms5MG9WeTA0eERiSC13T1ZwSU5HZHBWMlV2dGFQam5GdVplSUlmQWcwdWxPcXRnTUY1SFJMcFRtZDQ1Qi1xQkt5cTduMmRNemdqMUF0TUZQVVBJdW1rVnh4TmI2TXV6U1k1QWdZMjF5WWFnd2pVMmkxZ05yTnhLUk11a3I4VGJYNUpPbFl4ekRnNzNYNXBTaVBIcWlFcjVlMnVTbHAxMnlYTkE0RFc2a2VHcnVXdU1qanhXOE5vNWFHZzAyend6Q1cxRVMtcjNXRWlTeHNnekpmSmp0NE5iUUJhbXBOeDJJeGRFb2ZiTWdVdXhkLXVOQXIzYkxYa29EV0owejdQd2ptdHpINjdXb2FhOG53YXdPQkRENGQ3d3JEQnBPS3JtOGRvenF1dUdEMXM5bjlRalIxcjVjMjNQYzh6eTNjRUFQdVdCNU03STJMTTdKbFFWdHN1UlUxV3VLeXJ6NnZwb005NkNheUYxSjZoWk1RYk4tYXJyVnBjdHI2Y2VMQQ==","email":"ccardeno@redhat.com"},"registry.redhat.io":{"auth":"fHVoYy1wb29sLTI1ZmExMzkyLTkwZWYtNDA2Ny04ZDY2LTI4N2JiNzk5N2ZhZDpleUpoYkdjaU9pSlNVelV4TWlKOS5leUp6ZFdJaU9pSTVNamRqWVRjMll6TXlaREEwTkdGaU9EQmtNbVV6TVRrMlpqa3lZV0k0WVNKOS5kWV9ya3psTGEtTm16RHlJcWVaRm9zSXVBYlVVMGJiWVNxU3IxNkkzSFZjc05yX3c3V3dOeGlfRjN1Tmd1ZmUwZDRQNktDQXhNQkh3bUQ1MHp1cWxnR0FFbUxVMmhXMWRlQmJNVVBKWHVfdkZEVXVTdzlCUFAyQmk2THlQVjhmem9IQlVKV2dnU21jd0RiSklBUXJkRExpOF96a2NfT2lKdzg1ZXlpZGkzbU1LNkdyVmNmQTBBQ211TDlvb1BCemNaYXl5R3VUTzZheG43Nkk3M0lMbnFUTTBfdmxwSFZ2dHBfeVJtc2xmZjZnVVJxZXRDdGVWdC1tVjdmM2pvR2dPalBxN2VHaE4za2pOenExUF94TFJCaHBrNnBMcGl4UXhmZHBOWTJxWDk2SFhTTms5MG9WeTA0eERiSC13T1ZwSU5HZHBWMlV2dGFQam5GdVplSUlmQWcwdWxPcXRnTUY1SFJMcFRtZDQ1Qi1xQkt5cTduMmRNemdqMUF0TUZQVVBJdW1rVnh4TmI2TXV6U1k1QWdZMjF5WWFnd2pVMmkxZ05yTnhLUk11a3I4VGJYNUpPbFl4ekRnNzNYNXBTaVBIcWlFcjVlMnVTbHAxMnlYTkE0RFc2a2VHcnVXdU1qanhXOE5vNWFHZzAyend6Q1cxRVMtcjNXRWlTeHNnekpmSmp0NE5iUUJhbXBOeDJJeGRFb2ZiTWdVdXhkLXVOQXIzYkxYa29EV0owejdQd2ptdHpINjdXb2FhOG53YXdPQkRENGQ3d3JEQnBPS3JtOGRvenF1dUdEMXM5bjlRalIxcjVjMjNQYzh6eTNjRUFQdVdCNU03STJMTTdKbFFWdHN1UlUxV3VLeXJ6NnZwb005NkNheUYxSjZoWk1RYk4tYXJyVnBjdHI2Y2VMQQ==","email":"ccardeno@redhat.com"}}}
+additionalTrustBundle: |
+  -----BEGIN CERTIFICATE-----
+  MIIGMjCCBBqgAwIBAgIUaiAjexu8RobxqcbIEd21DlXj93MwDQYJKoZIhvcNAQEL
+  BQAwgYsxCzAJBgNVBAYTAkVTMQ4wDAYDVQQIDAVTcGFpbjEPMA0GA1UEBwwGTWFk
+  cmlkMRYwFAYDVQQKDA1hZHJvZ2FsbG9wIFNMMQ4wDAYDVQQLDAVpbmZyYTEzMDEG
+  A1UEAwwqcmVnaXN0cnkuY2x1czNhLnQ1Zy5sYWIuZW5nLmJvcy5yZWRoYXQuY29t
+  MB4XDTIyMDUwMjA2MjUxN1oXDTMyMDQyOTA2MjUxN1owgYsxCzAJBgNVBAYTAkVT
+  MQ4wDAYDVQQIDAVTcGFpbjEPMA0GA1UEBwwGTWFkcmlkMRYwFAYDVQQKDA1hZHJv
+  Z2FsbG9wIFNMMQ4wDAYDVQQLDAVpbmZyYTEzMDEGA1UEAwwqcmVnaXN0cnkuY2x1
+  czNhLnQ1Zy5sYWIuZW5nLmJvcy5yZWRoYXQuY29tMIICIjANBgkqhkiG9w0BAQEF
+  AAOCAg8AMIICCgKCAgEAvpZ6xdss9nhtJdFehalGMy2IIZoBhOZkf7jTH2OGB9Wb
+  fGMyF76p0Q4GFgmqxLlOD0ePay32OpDY05Uf3hSCSSOQwbrYJEgT9mFcmwUoUuG1
+  mq6hJ8iG/8g/9YPkWJjInhPwIQ3wniN3F5deujNpOF8iM30L5cdaQ8s0hxe/Kc3e
+  tMYsvPyaXQ5Zp5QiqYIG+/q7EVprL+8jks4z0GLY2GKZFroh44Mq64p8Q5wygOe7
+  yyqbLmGIlHJpwYx+DcyYrs4dlplBp9hAfYgLyd2BNgabgMIYJxri22qW/f+iIzO0
+  gI8aikg5/eg7JXHQ/AN7MzsOuLgNfR7AYH/QXZqoXkB7901WHzmmqqHEwg72bw8O
+  +VxQ6+63x61loR8Wwu3XPO0oi4SB4XJ9FG0jmjLPwHDeK/D6rw4/Y4+A5kGpixp4
+  QNsn3v0BNnMpzOmbfJc3O7tfm9Vr7y/mRdkADg8zZbY9VtEG8LBJK0//vHHceUPn
+  foE2JfoDGYXRo4p5qZM8pzhRS4WaghKW72bPyxPE0yg8CHE+2HszGrmYwbzZ9M5W
+  BME2CT2LZzKmJkIGaXV0q8huqhPH4tckBYkA3FzPpwGj7E2TSSCuAzxuJ2WL6Xq5
+  RcKvvI6jYyrixJhI+mc+m59utWCN1iRj2LShSUeEGq85hphyPS/9Rg2JzaaqptMC
+  AwEAAaOBizCBiDAdBgNVHQ4EFgQU1lE9PPZj/R0dY3wolSx2CGbnTRgwHwYDVR0j
+  BBgwFoAU1lE9PPZj/R0dY3wolSx2CGbnTRgwDwYDVR0TAQH/BAUwAwEB/zA1BgNV
+  HREELjAsgipyZWdpc3RyeS5jbHVzM2EudDVnLmxhYi5lbmcuYm9zLnJlZGhhdC5j
+  b20wDQYJKoZIhvcNAQELBQADggIBAInfyBmiQbKrflgC/bd+HeSMpvuYokRi9ff7
+  oL/S+wDyN2kOhh+lhrVO6w3OT3AkG/4FMtRDTokVmWYoTzooep9r5hpRDb64aSak
+  LCNEQr+ht/x0sueozaNPicbl03oKezAdIxBNAJA8ms5+Hno0oltFLM81XKP/yw2R
+  lVONDZgdsNYfQzs2caQBmahnNw41J7S55NUGBBrsNP/5E3UxuYw8oCFINTWyiwZC
+  MRUH/6YppOeAELdxieX5a83VuB+/XnV4EfcORJUPaXMarEWzXGIpAsPec5n/itwi
+  NHTRsDhICGlH45UsTey5T2p9CvNXBHN8bwA4CKaqZFD/n4GSOp9hL3aoA8TBs80f
+  82NbFgBDELG1JWo+MUAJkN706yTJ3r5rwa/b//uBlyf3FrnCAWQMsq6sXQy3Fa/w
+  tnq+XWS+twjWCNchwhsvwKzBFVvBKkOeABVv6Etu6/WbaHWA1q6O+bMvk5C2UNx4
+  8fIStr6V3/vvX5/GM6ps4+bbOeZjKT51/RkvcEdjkQOOnXGTB0cJv/IUAgJ82UOA
+  /UxL4oWII4TiYCo8yR5D/0ryrPBL15LDmht5WMaI4Wn40aBBdI2XaLHA3haju/8m
+  +ALjXtaxuAGOLAP1XDqJE4wjDGhGB2oomFURwprfgOFLqvUDyUEngGcnWTdkViz3
+  MIjkxw0M
+  -----END CERTIFICATE-----
+sshKey: |
+  ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCaTNKY08frGZjQLyS5hHPqAGRV3kbYkahoK4pJ1jpiBX2TxjgzmSCuhCKFkCwRPwDhUu1kTJ4XEFX7wA2P0df7asPkkdipvbesV8ySrLutjZToMxuE30lKjmQ6z960knYk2P3B/gK5dNabjPfStHdp3NO3KgBEku1qcE+oGpzxtnltmU8DWkx8/1Dg9jnvvSgOlTIeTNNQ8mSjmFy6QpaUW1esikWh9Bn0GEdI4Z0d4jUIKTlaAYdNNFy3ps5lz6L6udCXdPx5NzMePjyXsl4Pwsops8Wzb9sZmvPWyz45rmL7fA1rnyZPQ6et1ZBXy7er4SJIwgXMmM3b/4XgCFGjqegPtQVtK1rH38ODIXRwCQlmCbClFQCMIR6nUn6wWCv5kcC9An7c9jg5Zjwu9g/umM0hQs1HX4nFGhg6AXyuD6jjbmrugKEO1NTjG9pKB+G6OSbbwrbydyd1ZonbrhTvN1rFSrKA+nKX2bseZDZh4ikBU4CPMpEG/F1AqBMlIyk= kni@bm-cluster-1-hyper.e2e.bos.redhat.com 
